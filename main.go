@@ -15,7 +15,6 @@ type Migrator struct {
 	migrator *migrate.Migrator
 }
 
-// NewMigrator создаёт новый экземпляр Migrator, используя указанный путь к файлам миграций.
 func NewMigrator(dbDNS string, migrationPath string) (Migrator, error) {
 	conn, err := pgx.Connect(context.Background(), dbDNS)
 	if err != nil {
@@ -30,13 +29,12 @@ func NewMigrator(dbDNS string, migrationPath string) (Migrator, error) {
 		return Migrator{}, err
 	}
 
-	// Проверяем, что директория с миграциями существует
 	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
 		return Migrator{}, fmt.Errorf("migration directory does not exist: %s", migrationPath)
 	}
 
-	// Загружаем миграции из директории
 	migrationRoot := os.DirFS(migrationPath)
+	fmt.Println(migrationRoot)
 	err = migrator.LoadMigrations(migrationRoot)
 	if err != nil {
 		return Migrator{}, err
@@ -47,7 +45,6 @@ func NewMigrator(dbDNS string, migrationPath string) (Migrator, error) {
 	}, nil
 }
 
-// Info возвращает текущую версию миграции, максимальную миграцию и текстовое представление состояния миграций.
 func (m Migrator) Info() (int32, int32, string, error) {
 	version, err := m.migrator.GetCurrentVersion(context.Background())
 	if err != nil {
